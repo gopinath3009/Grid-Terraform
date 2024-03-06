@@ -1,0 +1,55 @@
+resource "aws_vpc" "gopinath" {
+  cidr_block = "17.2.0.0/16"
+  tags = {
+    Name = "gopinath_vpc"
+  }
+}
+
+resource "aws_subnet" "gopinath_public_subnet" {
+  vpc_id     = aws_vpc.gopinath.id
+  cidr_block = "17.2.1.0/24"
+  tags = {
+    Name = "gopinath_public_subnet"
+  }
+}
+resource "aws_subnet" "gopinath_private_subnet" {
+  vpc_id     = aws_vpc.gopinath.id
+  cidr_block = "17.2.2.0/24"
+  tags = {
+    Name = "gopinath_private_subnet"
+  }
+}
+
+resource "aws_internet_gateway" "gopinath_igw" {
+    vpc_id = aws_vpc.gopinath.id
+    tags = {
+        Name = "gopinath_igw"
+    }
+  
+}
+
+resource "aws_route_table" "gopinath_routetable_public" {
+    vpc_id = aws_vpc.gopinath.id
+route {
+        cidr_block = "0.0.0.0/0"
+        gateway_id = aws_internet_gateway.gopinath_igw.id
+    }
+tags = {
+        Name = "gopinath_routetable_public"
+    }
+}
+resource "aws_route_table_association" "gopinath_public-rt_attach" {
+    subnet_id = aws_subnet.gopinath_public_subnet.id
+    route_table_id = aws_route_table.gopinath_routetable_public.id
+}
+
+resource "aws_route_table" "gopinath_routetable_private" {
+    vpc_id = aws_vpc.gopinath.id
+tags = {
+        Name = "gopinath_routetable_public"
+    }
+}
+resource "aws_route_table_association" "rt_associate_private_2" {
+    subnet_id = aws_subnet.gopinath_private_subnet.id
+    route_table_id = aws_route_table.gopinath_routetable_private.id
+}
